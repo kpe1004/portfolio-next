@@ -67,7 +67,7 @@ export default function Career() {
   return (
     <section
       id="career"
-      ref={ref as React.RefObject<HTMLElement>}
+      ref={ref}
       className="px-10 md:px-14 py-28 border-t border-white/[0.05]"
     >
       {/* header */}

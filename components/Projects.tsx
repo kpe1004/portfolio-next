@@ -78,7 +78,7 @@ export default function Projects() {
   return (
     <section
       id="works"
-      ref={ref as React.RefObject<HTMLElement>}
+      ref={ref}
       className="px-10 md:px-14 py-28"
     >
       {/* header */}

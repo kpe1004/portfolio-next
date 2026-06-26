@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-export function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLElement>(null);
+export function useInView<T extends HTMLElement = HTMLElement>(threshold = 0.15) {
+  const ref = useRef<T>(null);
   const [inView, setInView] = useState(false);
 
   useEffect(() => {

@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, Great_Vibes } from "next/font/google";
+import { Space_Grotesk, Great_Vibes } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  variable: "--font-inter",
+  variable: "--font-main",
 });
 
 const greatVibes = Great_Vibes({
@@ -15,13 +14,13 @@ const greatVibes = Great_Vibes({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio — Pyeongeun Ko",
-  description: "Motion Designer & Visual Artist",
+  title: "Pyeongeun Ko — Designer",
+  description: "Brand · Motion · Visual Designer based in Seoul",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" className={`${inter.variable} ${greatVibes.variable}`}>
+    <html lang="ko" className={`${spaceGrotesk.variable} ${greatVibes.variable}`}>
       <body className="antialiased">{children}</body>
     </html>
   );

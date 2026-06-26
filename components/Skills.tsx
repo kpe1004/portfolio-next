@@ -52,7 +52,7 @@ export default function Skills() {
   return (
     <section
       id="skills"
-      ref={ref as React.RefObject<HTMLElement>}
+      ref={ref}
       className="px-10 md:px-14 py-28 border-t border-white/[0.05]"
     >
       {/* header */}
