@@ -15,6 +15,16 @@ body {
   overflow-x: hidden;
 }
 
+/* hide default cursor on desktop */
+@media (hover: hover) {
+  *, *::before, *::after { cursor: none !important; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
 ::selection {
   background: rgba(255, 255, 255, 0.15);
 }
