@@ -62,7 +62,7 @@ export default function CustomCursor() {
       {/* dot — follows instantly */}
       <div
         ref={dotRef}
-        className="fixed top-0 left-0 pointer-events-none z-[9998]"
+        className="fixed top-0 left-0 pointer-events-none z-[99999]"
         style={{
           width: hovered ? "6px" : "4px",
           height: hovered ? "6px" : "4px",
@@ -78,7 +78,7 @@ export default function CustomCursor() {
       {/* ring — follows with lag */}
       <div
         ref={ringRef}
-        className="fixed top-0 left-0 pointer-events-none z-[9997]"
+        className="fixed top-0 left-0 pointer-events-none z-[99998]"
         style={{
           width: hovered ? "44px" : "30px",
           height: hovered ? "44px" : "30px",

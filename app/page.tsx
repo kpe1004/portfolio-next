@@ -1,47 +1,39 @@
 "use client";
-import { useState } from "react";
-import TopNav       from "@/components/TopNav";
-import Preloader    from "@/components/Preloader";
-import HeroSection  from "@/components/HeroSection";
-import WorkSection  from "@/components/WorkSection";
-import InfoSection  from "@/components/InfoSection";
+import { useState, useCallback } from "react";
+import Preloader     from "@/components/Preloader";
+import Hero          from "@/components/Hero";
+import ProjectList   from "@/components/ProjectList";
+import AboutSection  from "@/components/AboutSection";
+import SkillsSection from "@/components/SkillsSection";
 import ContactSection from "@/components/ContactSection";
-import CustomCursor from "@/components/CustomCursor";
+import CustomCursor  from "@/components/CustomCursor";
 
 export default function Home() {
   const [ready, setReady] = useState(false);
 
+  // useCallback prevents a new function reference on every render,
+  // which would re-trigger the Preloader's useEffect each time.
+  const handleComplete = useCallback(() => setReady(true), []);
+
   return (
     <>
       <CustomCursor />
-      <Preloader onComplete={() => setReady(true)} />
+      <Preloader onComplete={handleComplete} />
 
-      {/* Nav slides down when ready */}
-      <div
-        style={{
-          opacity:    ready ? 1 : 0,
-          transform:  ready ? "translateY(0)" : "translateY(-16px)",
-          transition: "opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s",
-        }}
-      >
-        <TopNav />
-      </div>
-
+      {/* 메인 콘텐츠는 블루 오버레이 뒤에서 미리 존재
+          — ready=true가 되는 시점(파란원이 꽉 찼을 때)부터 보임
+          — 이후 블루 오버레이가 페이드아웃되며 자연스럽게 드러남 */}
       <main
         style={{
           opacity:    ready ? 1 : 0,
-          transition: "opacity 0.5s ease 0.05s",
+          transition: ready ? "opacity 0s" : "none", // 즉시 표시, 블루 오버레이가 페이드로 reveal
         }}
       >
-        {/* hero is full-screen, no pt offset — nav overlays it */}
-        <HeroSection visible={ready} />
-
-        {/* offset for fixed nav on subsequent sections */}
-        <div className="pt-[88px]">
-          <WorkSection />
-          <InfoSection />
-          <ContactSection />
-        </div>
+        <Hero visible={ready} />
+        <ProjectList />
+        <AboutSection />
+        <SkillsSection />
+        <ContactSection />
       </main>
     </>
   );

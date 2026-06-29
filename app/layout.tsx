@@ -1,16 +1,30 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Great_Vibes } from "next/font/google";
+import { Cormorant_Garamond, Space_Grotesk, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  variable: "--font-main",
+  weight: ["300", "400", "600"],
+  variable: "--font-cormorant",
 });
 
-const greatVibes = Great_Vibes({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-script-var",
+  weight: ["400", "700"],
+  style: ["italic"],
+  variable: "--font-playfair",
+});
+
+const grotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-grotesk",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -20,7 +34,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" className={`${spaceGrotesk.variable} ${greatVibes.variable}`}>
+    <html
+      lang="ko"
+      className={`${cormorant.variable} ${playfair.variable} ${grotesk.variable} ${inter.variable}`}
+    >
       <body className="antialiased">{children}</body>
     </html>
   );
