@@ -124,7 +124,7 @@ interface WaveWordProps {
   visible: boolean;
   fontClass: string;
   charDelay: number;
-  dotRef?: React.RefObject<HTMLSpanElement>;
+  dotRef?: React.RefObject<HTMLSpanElement | null>;
 }
 
 function WaveWord({ text, visible, fontClass, charDelay, dotRef }: WaveWordProps) {
