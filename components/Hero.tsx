@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import ChrHover from "./ChrHover";
 
 const NAV_LINKS = [
-  { label: "Work",    href: "#works"   },
   { label: "Info",    href: "#info"    },
+  { label: "Work",    href: "#works"   },
   { label: "Contact", href: "#contact" },
 ];
 

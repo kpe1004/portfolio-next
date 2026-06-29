@@ -30,8 +30,8 @@ export default function Home() {
         }}
       >
         <Hero visible={ready} />
-        <ProjectList />
         <AboutSection />
+        <ProjectList />
         <SkillsSection />
         <ContactSection />
       </main>
