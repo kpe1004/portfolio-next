@@ -218,48 +218,10 @@ export default function Hero({ visible }: HeroProps) {
           </div>
 
           {/* Large name display — bottom area */}
-          <div
-            style={{
-              ...nameStyle,
-              position: "absolute",
-              bottom: "calc(3rem + 3.5rem + 2px)", // above hero-line + hero-bar
-              left: "3rem",
-              right: "3rem",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-end",
-              lineHeight: 1,
-              pointerEvents: "none",
-            }}
-          >
-            {/* Left — sans bold (like "Luke") */}
-            <span
-              style={{
-                fontFamily: "var(--font-grotesk)",
-                fontWeight: 700,
-                fontSize: "clamp(4rem, 16vw, 18rem)",
-                color: "#f0f0f0",
-                letterSpacing: "-0.03em",
-                lineHeight: 0.9,
-              }}
-            >
-              the
-            </span>
-
-            {/* Right — serif italic (like "Baffait.") */}
-            <span
-              style={{
-                fontFamily: "var(--font-cormorant)",
-                fontStyle: "italic",
-                fontWeight: 300,
-                fontSize: "clamp(4rem, 16vw, 18rem)",
-                color: "#f0f0f0",
-                letterSpacing: "-0.03em",
-                lineHeight: 0.9,
-              }}
-            >
-              Portfolio
-              <span style={{ color: "var(--blue-bright)" }}>.</span>
+          <div className="hero-name-row" style={nameStyle}>
+            <span className="hero-name-the">the</span>
+            <span className="hero-name-portfolio">
+              Portfolio<span style={{ color: "var(--blue-bright)" }}>.</span>
             </span>
           </div>
 

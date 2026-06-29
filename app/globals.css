@@ -135,9 +135,127 @@ a.chr-hover { cursor: pointer; }
 }
 .hero-bar-center .sep { font-size: 1.1rem; color: rgba(255,255,255,0.2); user-select: none; }
 .hero-bar-right { display: flex; gap: 2rem; }
+/* ── Hero name (the Portfolio.) ── */
+.hero-name-row {
+  position: absolute;
+  bottom: calc(3rem + 3.5rem + 2px);
+  left: 3rem; right: 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  line-height: 1;
+  pointer-events: none;
+}
+.hero-name-the {
+  font-family: var(--font-grotesk);
+  font-weight: 700;
+  font-size: clamp(4rem, 16vw, 18rem);
+  color: #f0f0f0;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+}
+.hero-name-portfolio {
+  font-family: var(--font-cormorant);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(4rem, 16vw, 18rem);
+  color: #f0f0f0;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+}
+
+/* ── Work grid ── */
+.proj-works-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0 8vw;
+}
+.proj-col-left  { border-right: 1px solid rgba(255,255,255,0.07); padding-right: 5vw; }
+.proj-col-right { padding-left: 5vw; }
+
+/* ══════════════════════════════════════════
+   MOBILE  (≤ 768px)
+══════════════════════════════════════════ */
 @media (max-width: 768px) {
+  /* ── Hero ── */
+  .hero-content { padding: 1.6rem; }
+  .hero-tagline {
+    top: 1.6rem; left: 1.6rem;
+    font-size: 0.72rem; line-height: 1.65; max-width: 80vw;
+  }
+  .hero-line {
+    bottom: calc(1.6rem + 3.2rem);
+    left: 1.6rem; right: 1.6rem;
+  }
+  .hero-bar {
+    bottom: 1.6rem; left: 1.6rem; right: 1.6rem;
+  }
   .hero-bar-left, .hero-bar-right { display: none; }
-  .hero-bar-center { position: static; transform: none; margin: 0 auto; }
+  .hero-bar-center {
+    position: static; transform: none; margin: 0;
+    flex-wrap: wrap; gap: 0.5rem 1rem; justify-content: flex-start;
+  }
+  .hero-bar-center .sep { display: none; }
+  .ch-top, .ch-bot { font-size: 0.7rem; }
+
+  /* 세로 쌓기: the / Portfolio. */
+  .hero-name-row {
+    flex-direction: column;
+    align-items: flex-start;
+    bottom: calc(1.6rem + 3.2rem + 2px);
+    left: 1.6rem; right: 1.6rem;
+    gap: 0;
+  }
+  .hero-name-the      { font-size: clamp(3rem, 21vw, 5.5rem); }
+  .hero-name-portfolio { font-size: clamp(2.8rem, 19vw, 5.5rem); }
+
+  /* ── Work 섹션 ── */
+  .proj-works-section { padding: 10vh 0 14vh !important; }
+  .proj-works-title   { padding: 0 5vw 2rem !important; }
+  .proj-works-grid    { grid-template-columns: 1fr; margin: 0 5vw; }
+  .proj-col-left  { border-right: none; padding-right: 0; }
+  .proj-col-right { padding-left: 0; border-top: 1px solid rgba(255,255,255,0.07); }
+
+  /* ── About ── */
+  .about { padding: 12vh 1.6rem 10vh; }
+  .about-text { width: 100%; font-size: clamp(1.4rem, 5.5vw, 2rem); }
+  .about-sub  { width: 100%; margin-left: 0; margin-top: 4vh; font-size: clamp(0.85rem, 3.5vw, 1.1rem); }
+  .about-btn  { margin-left: 0; margin-top: 2.5rem; }
+  .about-version { width: 100%; margin-top: 6vh; font-size: clamp(1.2rem, 5vw, 1.8rem); justify-content: flex-start; }
+  .about-photo-wrap {
+    position: relative; right: auto; top: auto;
+    margin: 5vh -1.6rem 0;
+    width: calc(100% + 3.2rem);
+  }
+  .about-photo {
+    width: 100%;
+    border-radius: 50px 0 0 50px;
+  }
+  /* gradient placeholder */
+  .about-photo-wrap > div:last-child {
+    width: 100% !important;
+    border-radius: 50px 0 0 50px !important;
+  }
+  /* Info detail grid → single column */
+  #infodetail { padding: 8vh 1.6rem 12vh !important; }
+  #infodetail > div { grid-template-columns: 1fr !important; gap: 4vh !important; }
+
+  /* ── Skills ── */
+  .skills-inner   { flex-direction: column; padding: 8vh 1.6rem 0; gap: 3vh; }
+  .skills-left    { position: static; width: 100%; }
+  .skills-text    { font-size: clamp(1.2rem, 5vw, 1.8rem); }
+
+  /* ── Contact ── */
+  .contact-section { padding: 10vh 1.6rem 8vh; }
+  .contact-big    { font-size: clamp(2rem, 10vw, 4rem); margin-bottom: 3rem; }
+  .contact-footer { flex-direction: column; gap: 0.8rem; align-items: flex-start; }
+
+  /* ── Preloader 폰트 모바일 조정 ── */
+  .pre-label { font-size: clamp(1.4rem, 6vw, 3.5rem); }
+  .pre-name  { font-size: clamp(2.4rem, 11vw, 7rem); }
+
+  /* ── 모달 ── */
+  .modal-inner { max-width: 95vw !important; margin: 0 auto; }
 }
 
 /* ── About ── */

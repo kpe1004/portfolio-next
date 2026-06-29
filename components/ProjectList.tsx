@@ -97,10 +97,10 @@ export default function ProjectList() {
   );
 
   return (
-    <section id="works" ref={sectionRef} style={{ position: "relative", padding: "16vh 0 20vh", background: "#0a0a0a" }}>
+    <section id="works" ref={sectionRef} className="proj-works-section" style={{ position: "relative", padding: "16vh 0 20vh", background: "#0a0a0a" }}>
 
       {/* Section title */}
-      <div style={{ padding: "0 8vw 3rem" }}>
+      <div className="proj-works-title" style={{ padding: "0 8vw 3rem" }}>
         <h2 style={{
           fontFamily: "var(--font-cormorant)",
           fontSize: "clamp(2.5rem, 5vw, 5rem)",
@@ -112,18 +112,14 @@ export default function ProjectList() {
       </div>
 
       {/* 2-column grid */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        margin: "0 8vw",
-      }}>
+      <div className="proj-works-grid">
         {/* Left column */}
-        <div style={{ borderRight: "1px solid rgba(255,255,255,0.07)", paddingRight: "5vw" }}>
+        <div className="proj-col-left">
           {LEFT.map((p, i) => renderRow(p, i))}
         </div>
 
         {/* Right column */}
-        <div style={{ paddingLeft: "5vw" }}>
+        <div className="proj-col-right">
           {RIGHT.map((p, i) => renderRow(p, i + 6))}
         </div>
       </div>
@@ -165,6 +161,7 @@ export default function ProjectList() {
           }}
         >
           <div
+            className="modal-inner"
             onClick={(e) => e.stopPropagation()}
             style={{
               position: "relative", width: "100%", maxWidth: "820px",
