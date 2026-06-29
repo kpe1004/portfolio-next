@@ -190,6 +190,15 @@ export default function Hero({ visible }: HeroProps) {
         {/* Animated grain + gradient canvas */}
         <canvas ref={canvasRef} className="hero-canvas" />
 
+        {/* Bottom fade → Work 섹션 배경(#0a0a0a)과 무경계 연결 */}
+        <div style={{
+          position: "absolute", bottom: 0, left: 0, right: 0,
+          height: "55%",
+          background: "linear-gradient(to bottom, transparent 0%, #0a0a0a 100%)",
+          zIndex: 1,
+          pointerEvents: "none",
+        }} />
+
         <div className="hero-content">
           {/* Tagline — top left */}
           <div className="hero-tagline" style={taglineStyle}>
