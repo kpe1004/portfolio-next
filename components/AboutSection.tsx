@@ -60,7 +60,7 @@ export default function AboutSection() {
               <svg style={{ width: "1.1em", height: "1.1em" }} viewBox="0 0 84 85" fill="currentColor">
                 <path d="M11 38H54L37 21H51L73 43L51 65H37L54 48H11Z"/>
               </svg>
-              last update. 2026
+              Explore the Works
             </span>
           </WordReveal>
         </div>
