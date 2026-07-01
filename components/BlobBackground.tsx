@@ -76,8 +76,13 @@ export default function BlobBackground() {
       const off2 = entry2Ref.current / 1.2;
       const off3 = entry3Ref.current / 1.2;
 
-      // Exit offset: blobs go back to the SAME SIDE they came from
-      const exitOff = 1 - heroFade; // 0→1 when returning to hero
+      // Staggered EXIT — last-in first-out, mirrors the entry order
+      // blob2(right) exits first  → heroFade 1.0 → 0.60
+      // blob3(lower) exits second → heroFade 0.70 → 0.30
+      // blob1(left)  exits last   → heroFade 0.40 → 0.00
+      const exit2Off = 1 - Math.min(1, Math.max(0, (heroFade - 0.60) / 0.40));
+      const exit3Off = 1 - Math.min(1, Math.max(0, (heroFade - 0.30) / 0.40));
+      const exit1Off = 1 - Math.min(1, Math.max(0,  heroFade          / 0.40));
 
       // ── Firefly drift (multi-sine, irrational ratios, visible speed) ──
       const ta = t * 0.012;
@@ -95,14 +100,12 @@ export default function BlobBackground() {
       const bx2 = w * 0.78 + d2x,  by2 = h * 0.50 + d2y;
       const bx3 = w * 0.24 + d3x,  by3 = h * 0.65 + d3y;
 
-      // Final positions:
-      // LEFT blobs (1, 3): pushed left on entry AND on exit
-      // RIGHT blob (2)   : pushed right on entry AND on exit
-      const b1x = bx1 - w * (off1 + exitOff) * 0.95;
+      // Final positions — each blob uses its own entry + exit offset
+      const b1x = bx1 - w * (off1 + exit1Off) * 0.95;
       const b1y = by1;
-      const b2x = bx2 + w * (off2 + exitOff) * 0.95;
+      const b2x = bx2 + w * (off2 + exit2Off) * 0.95;
       const b2y = by2;
-      const b3x = bx3 - w * (off3 + exitOff) * 0.72;
+      const b3x = bx3 - w * (off3 + exit3Off) * 0.72;
       const b3y = by3;
 
       // ── Draw ──────────────────────────────────────────────────
