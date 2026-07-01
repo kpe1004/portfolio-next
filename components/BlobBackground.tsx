@@ -1,15 +1,17 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-// Entry  : blob 1 & 3 from LEFT, blob 2 from RIGHT  (양쪽)
-// Exit   : all blobs converge into photo area (right side)
-// Drift  : firefly-style multi-sine at irrational ratios, clearly visible speed
+// Entry : staggered — blob1(left) t=0, blob3(lower-left) t+350ms, blob2(right) t+700ms
+// Exit  : each blob exits the same side it entered (left↔left, right↔right)
+// Drift : firefly — multi-sine at φ/√2/√3 ratios, clearly visible speed
 
 export default function BlobBackground() {
   const canvasRef     = useRef<HTMLCanvasElement>(null);
   const rafRef        = useRef<number>(0);
   const hasEnteredRef = useRef(false);
-  const entryRef      = useRef(0);
+  const entry1Ref     = useRef(0);   // blob 1  left  — starts first
+  const entry3Ref     = useRef(0);   // blob 3  lower-left — +350 ms
+  const entry2Ref     = useRef(0);   // blob 2  right — +700 ms
   const scrollYRef    = useRef(0);
   const scrollLerpRef = useRef(0);
 
@@ -20,7 +22,9 @@ export default function BlobBackground() {
       ([e]) => {
         if (e.isIntersecting && !hasEnteredRef.current && window.scrollY > 80) {
           hasEnteredRef.current = true;
-          entryRef.current      = 1.2;
+          entry1Ref.current = 1.2;                                     // left — now
+          setTimeout(() => { entry3Ref.current = 1.2; }, 350);        // lower-left — 350 ms
+          setTimeout(() => { entry2Ref.current = 1.2; }, 700);        // right — 700 ms
           observer.disconnect();
         }
       },
@@ -53,29 +57,32 @@ export default function BlobBackground() {
 
       if (!hasEnteredRef.current) { t++; rafRef.current = requestAnimationFrame(draw); return; }
 
-      // Entry: slow glide in (~4 s)
-      if (entryRef.current > 0.002) entryRef.current *= 0.983;
-      else entryRef.current = 0;
+      // Decay each blob's entry independently
+      if (entry1Ref.current > 0.002) entry1Ref.current *= 0.983; else entry1Ref.current = 0;
+      if (entry2Ref.current > 0.002) entry2Ref.current *= 0.983; else entry2Ref.current = 0;
+      if (entry3Ref.current > 0.002) entry3Ref.current *= 0.983; else entry3Ref.current = 0;
 
       // heroFade: 0 = in hero, 1 = in sections
       const heroFade = Math.min(1, Math.max(0,
         (scrollLerpRef.current - h * 0.60) / (h * 0.40)
       ));
 
-      const entryProgress = 1 - Math.min(entryRef.current / 1.2, 1);
-      const alpha = entryProgress * 0.62 * heroFade;
+      // Alpha based on first blob's progress (sets the mood, stays at max once in)
+      const alpha = (1 - Math.min(entry1Ref.current / 1.2, 1)) * 0.62 * heroFade;
       if (alpha < 0.005) { t++; rafRef.current = requestAnimationFrame(draw); return; }
 
-      const entryOff = entryRef.current / 1.2; // 1→0 (fly-in, one-time)
-      const exitOff  = 1 - heroFade;           // 0→1 (fly-out when returning to hero)
+      // Per-blob entry offsets (1→0 as each flies in)
+      const off1 = entry1Ref.current / 1.2;
+      const off2 = entry2Ref.current / 1.2;
+      const off3 = entry3Ref.current / 1.2;
 
-      // ── Firefly drift ─────────────────────────────────────────
-      // ta * 0.012 → ~8-10 s period: clearly visible but not jittery
-      // Irrational multipliers (φ, √2, √3) = organic non-repeating path
+      // Exit offset: blobs go back to the SAME SIDE they came from
+      const exitOff = 1 - heroFade; // 0→1 when returning to hero
+
+      // ── Firefly drift (multi-sine, irrational ratios, visible speed) ──
       const ta = t * 0.012;
-
-      const d1x = Math.sin(ta * 1.000) * w * 0.06 + Math.sin(ta * 1.618) * w * 0.03;
-      const d1y = Math.cos(ta * 0.721) * h * 0.08 + Math.cos(ta * 1.414) * h * 0.04;
+      const d1x = Math.sin(ta * 1.000) * w * 0.06 + Math.sin(ta * 1.618) * w * 0.030;
+      const d1y = Math.cos(ta * 0.721) * h * 0.08 + Math.cos(ta * 1.414) * h * 0.040;
 
       const d2x = Math.cos(ta * 0.850 + 1.0) * w * 0.05 + Math.cos(ta * 1.382 + 0.5) * w * 0.025;
       const d2y = Math.sin(ta * 0.900 + 0.5) * h * 0.07 + Math.sin(ta * 1.272)        * h * 0.035;
@@ -83,31 +90,20 @@ export default function BlobBackground() {
       const d3x = Math.sin(ta * 1.150 + 2.0) * w * 0.055 + Math.sin(ta * 1.732 + 1.5) * w * 0.022;
       const d3y = Math.cos(ta * 0.650 + 1.5) * h * 0.075 + Math.cos(ta * 1.618 + 0.8) * h * 0.030;
 
-      // Natural resting centers
-      const n1x = w * 0.18, n1y = h * 0.40;
-      const n2x = w * 0.78, n2y = h * 0.50;
-      const n3x = w * 0.24, n3y = h * 0.65;
+      // Natural resting centers + drift
+      const bx1 = w * 0.18 + d1x,  by1 = h * 0.40 + d1y;
+      const bx2 = w * 0.78 + d2x,  by2 = h * 0.50 + d2y;
+      const bx3 = w * 0.24 + d3x,  by3 = h * 0.65 + d3y;
 
-      // Photo area (exit target — right side, slightly off-screen)
-      const p1x = w * 1.06, p1y = h * 0.36;
-      const p2x = w * 1.10, p2y = h * 0.46;
-      const p3x = w * 1.03, p3y = h * 0.58;
-
-      // Base = natural + firefly drift
-      const bx1 = n1x + d1x, by1 = n1y + d1y;
-      const bx2 = n2x + d2x, by2 = n2y + d2y;
-      const bx3 = n3x + d3x, by3 = n3y + d3y;
-
-      // Entry: blob1 & blob3 from LEFT, blob2 from RIGHT
-      // Exit : all go into photo area (right)
-      const b1x = bx1 - w * entryOff * 0.95  + (p1x - bx1) * exitOff;
-      const b1y = by1                          + (p1y - by1) * exitOff;
-
-      const b2x = bx2 + w * entryOff * 0.95  + (p2x - bx2) * exitOff;
-      const b2y = by2                          + (p2y - by2) * exitOff;
-
-      const b3x = bx3 - w * entryOff * 0.72  + (p3x - bx3) * exitOff;
-      const b3y = by3                          + (p3y - by3) * exitOff;
+      // Final positions:
+      // LEFT blobs (1, 3): pushed left on entry AND on exit
+      // RIGHT blob (2)   : pushed right on entry AND on exit
+      const b1x = bx1 - w * (off1 + exitOff) * 0.95;
+      const b1y = by1;
+      const b2x = bx2 + w * (off2 + exitOff) * 0.95;
+      const b2y = by2;
+      const b3x = bx3 - w * (off3 + exitOff) * 0.72;
+      const b3y = by3;
 
       // ── Draw ──────────────────────────────────────────────────
       const g1 = ctx.createRadialGradient(b1x, b1y, 0, b1x, b1y, w * 0.50);
