@@ -9,6 +9,7 @@ import InfoDetailSection  from "@/components/InfoDetailSection";
 import ContactSection     from "@/components/ContactSection";
 import CustomCursor       from "@/components/CustomCursor";
 import BlobBackground     from "@/components/BlobBackground";
+import TopButton          from "@/components/TopButton";
 
 export default function Home() {
   const [ready, setReady] = useState(false);
@@ -22,6 +23,9 @@ export default function Home() {
 
       {/* Fixed blob canvas — fires on each section entry, blends as light over all sections */}
       <BlobBackground />
+
+      {/* Scroll-to-top button — appears after 400px scroll */}
+      <TopButton />
 
       <main
         style={{

@@ -1,29 +1,44 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-// triggerRef: 1.2 = just fired (blobs off-screen), decays → 0 (blobs at natural pos)
-// alpha follows sin(π * progress) so it peaks mid-flight and fades at rest
+// triggerRef  : 1.2 → 0  (section entry fly-in, slow decay ~3 s)
+// scrollImpRef: 0 → 0.35 (per-scroll sway, decays when still)
+// Combined: blobs fly in slowly on entry, then pulse from sides while scrolling
 
 export default function BlobBackground() {
-  const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const rafRef     = useRef<number>(0);
-  const triggerRef = useRef(0);
+  const canvasRef     = useRef<HTMLCanvasElement>(null);
+  const rafRef        = useRef<number>(0);
+  const triggerRef    = useRef(0);
+  const scrollImpRef  = useRef(0);
+  const prevScrollRef = useRef(0);
 
-  // Observe each section — reset trigger on every new entry
+  // Section entry — reset trigger
   useEffect(() => {
     const targets = document.querySelectorAll("#info, #works, #skills, #infodetail, #contact");
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) triggerRef.current = 1.2;
         });
       },
-      { threshold: 0.12 }
+      { threshold: 0.1 }
     );
-
     targets.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
+  }, []);
+
+  // Scroll impulse — blobs sway from sides while scrolling
+  useEffect(() => {
+    const onScroll = () => {
+      const curr  = window.scrollY;
+      const delta = Math.abs(curr - prevScrollRef.current);
+      if (delta > 1) {
+        scrollImpRef.current = Math.min(scrollImpRef.current + delta * 0.005, 0.38);
+      }
+      prevScrollRef.current = curr;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
@@ -37,70 +52,72 @@ export default function BlobBackground() {
     const draw = () => {
       const w = (canvas.width  = canvas.offsetWidth);
       const h = (canvas.height = canvas.offsetHeight);
-
       ctx.clearRect(0, 0, w, h);
 
-      // Decay (0.95^60fps ≈ fades over ~1.6 s)
-      if (triggerRef.current > 0.004) {
-        triggerRef.current *= 0.955;
-      } else {
-        triggerRef.current = 0;
+      // Fly-in: slow decay so blobs glide in over ~3 s
+      if (triggerRef.current > 0.003) triggerRef.current *= 0.972;
+      else triggerRef.current = 0;
+
+      // Scroll sway: medium decay — stays bright while scrolling, fades when still
+      if (scrollImpRef.current > 0.003) scrollImpRef.current *= 0.94;
+      else scrollImpRef.current = 0;
+
+      const tr = triggerRef.current;   // 0–1.2
+      const si = scrollImpRef.current; // 0–0.38
+
+      if (tr < 0.003 && si < 0.003) {
+        t++;
+        rafRef.current = requestAnimationFrame(draw);
+        return;
       }
 
-      const tr = triggerRef.current;
+      // Alpha: fly-in peaks mid-flight (sin curve); scroll sway is linear
+      const progress = tr > 0 ? 1 - tr / 1.2 : 1;
+      const flyAlpha  = Math.sin(Math.PI * progress) * 0.72;
+      const swayAlpha = si * 1.6;
+      const alpha     = Math.max(flyAlpha, swayAlpha);
 
-      if (tr > 0.004) {
-        // progress: 0 (just triggered) → 1 (settled/invisible)
-        const progress  = 1 - tr / 1.2;
-        // alpha peaks in the middle of the flight
-        const alpha     = Math.sin(Math.PI * progress);
-        // offsetFrac: 1 (off-screen) → 0 (natural position)
-        const offsetFrac = tr / 1.2;
+      // Side offset: larger = further off-screen
+      const flyOff  = tr / 1.2;       // 1 → 0  (far side → natural)
+      const swayOff = si * 0.45;      // 0 → 0.17 (gentle pulse from sides)
+      const off     = flyOff + swayOff;
 
-        // slow ambient drift so natural position isn't static
-        const drift = Math.sin(t * 0.0008) * 0.04;
+      const drift = Math.sin(t * 0.0007) * 0.025;
 
-        // Blob 1 — comes from left side
-        const n1x = w * (0.22 + drift);
-        const n1y = h * 0.45;
-        const b1x = n1x - w * offsetFrac * 1.1;
-        const b1y = n1y;
-        const r1  = w * 0.48;
-        const g1  = ctx.createRadialGradient(b1x, b1y, 0, b1x, b1y, r1);
-        g1.addColorStop(0.00, `rgba(30, 86, 255, ${(alpha * 0.78).toFixed(3)})`);
-        g1.addColorStop(0.28, `rgba(44, 59, 206, ${(alpha * 0.50).toFixed(3)})`);
-        g1.addColorStop(0.65, `rgba(20, 30, 120, ${(alpha * 0.20).toFixed(3)})`);
-        g1.addColorStop(1.00, "rgba(5, 5, 16, 0.000)");
-        ctx.fillStyle = g1;
-        ctx.fillRect(0, 0, w, h);
+      // ── Blob 1 — from left ───────────────────────────────────
+      const b1x = w * (0.24 + drift) - w * off * 0.95;
+      const b1y = h * 0.44;
+      const g1  = ctx.createRadialGradient(b1x, b1y, 0, b1x, b1y, w * 0.50);
+      const a1  = (v: number) => (alpha * v).toFixed(3);
+      g1.addColorStop(0.00, `rgba(30, 86, 255, ${a1(0.82)})`);
+      g1.addColorStop(0.28, `rgba(44, 59, 206, ${a1(0.54)})`);
+      g1.addColorStop(0.65, `rgba(20, 30, 120, ${a1(0.22)})`);
+      g1.addColorStop(1.00, "rgba(5, 5, 16, 0.000)");
+      ctx.fillStyle = g1;
+      ctx.fillRect(0, 0, w, h);
 
-        // Blob 2 — comes from right side
-        const n2x = w * (0.78 - drift);
-        const n2y = h * 0.52;
-        const b2x = n2x + w * offsetFrac * 1.1;
-        const b2y = n2y;
-        const r2  = w * 0.42;
-        const g2  = ctx.createRadialGradient(b2x, b2y, 0, b2x, b2y, r2);
-        g2.addColorStop(0.00, `rgba(74, 108, 247, ${(alpha * 0.72).toFixed(3)})`);
-        g2.addColorStop(0.32, `rgba(44, 59, 206, ${(alpha * 0.44).toFixed(3)})`);
-        g2.addColorStop(0.68, `rgba(20, 20, 90,  ${(alpha * 0.16).toFixed(3)})`);
-        g2.addColorStop(1.00, "rgba(5, 5, 16, 0.000)");
-        ctx.fillStyle = g2;
-        ctx.fillRect(0, 0, w, h);
+      // ── Blob 2 — from right ──────────────────────────────────
+      const b2x = w * (0.76 - drift) + w * off * 0.95;
+      const b2y = h * 0.54;
+      const g2  = ctx.createRadialGradient(b2x, b2y, 0, b2x, b2y, w * 0.44);
+      const a2  = (v: number) => (alpha * v).toFixed(3);
+      g2.addColorStop(0.00, `rgba(74, 108, 247, ${a2(0.76)})`);
+      g2.addColorStop(0.32, `rgba(44, 59, 206, ${a2(0.48)})`);
+      g2.addColorStop(0.68, `rgba(20, 20, 90,  ${a2(0.18)})`);
+      g2.addColorStop(1.00, "rgba(5, 5, 16, 0.000)");
+      ctx.fillStyle = g2;
+      ctx.fillRect(0, 0, w, h);
 
-        // Blob 3 (violet accent) — comes from left, slightly lower
-        const n3x = w * (0.35 + drift * 0.5);
-        const n3y = h * 0.62;
-        const b3x = n3x - w * offsetFrac * 0.75;
-        const b3y = n3y;
-        const r3  = w * 0.30;
-        const g3  = ctx.createRadialGradient(b3x, b3y, 0, b3x, b3y, r3);
-        g3.addColorStop(0.00, `rgba(100, 50, 255, ${(alpha * 0.55).toFixed(3)})`);
-        g3.addColorStop(0.40, `rgba(60, 40, 180,  ${(alpha * 0.28).toFixed(3)})`);
-        g3.addColorStop(1.00, "rgba(5, 5, 16, 0.000)");
-        ctx.fillStyle = g3;
-        ctx.fillRect(0, 0, w, h);
-      }
+      // ── Blob 3 — violet accent from left-lower ───────────────
+      const b3x = w * (0.32 + drift * 0.6) - w * off * 0.68;
+      const b3y = h * 0.63;
+      const g3  = ctx.createRadialGradient(b3x, b3y, 0, b3x, b3y, w * 0.32);
+      const a3  = (v: number) => (alpha * v).toFixed(3);
+      g3.addColorStop(0.00, `rgba(100, 50, 255, ${a3(0.58)})`);
+      g3.addColorStop(0.40, `rgba(60, 40, 180,  ${a3(0.30)})`);
+      g3.addColorStop(1.00, "rgba(5, 5, 16, 0.000)");
+      ctx.fillStyle = g3;
+      ctx.fillRect(0, 0, w, h);
 
       t++;
       rafRef.current = requestAnimationFrame(draw);
@@ -114,14 +131,14 @@ export default function BlobBackground() {
     <canvas
       ref={canvasRef}
       style={{
-        position:       "fixed",
-        top:            0,
-        left:           0,
-        width:          "100%",
-        height:         "100%",
-        zIndex:         1,
-        pointerEvents:  "none",
-        mixBlendMode:   "screen",  // dark canvas pixels = invisible; blue glows = additive light
+        position:      "fixed",
+        top:           0,
+        left:          0,
+        width:         "100%",
+        height:        "100%",
+        zIndex:        1,
+        pointerEvents: "none",
+        mixBlendMode:  "screen",
       }}
     />
   );
