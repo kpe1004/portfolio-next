@@ -36,21 +36,21 @@ export default function AboutSection() {
         <div className="about-text">
           <WordReveal visible={visible} delay={0}>
             <span className="other-accent">감각적인 비주얼</span>로,<br />
-            새로운 브랜드 경험을 전합니다.
+            <span className="other-accent">새로운 브랜드 경험</span>을 전합니다.
           </WordReveal>
         </div>
 
         {/* Sub text */}
         <div className="about-sub">
           <WordReveal visible={visible} delay={0.3}>
-            끊임없이 변화하는 트렌드 속에서, 시대의 흐름에 맞춰 소통하고
-            기록하며 성장하는 디자이너입니다.
+            변화하는 트렌드 속, 시대와 소통하고 기록하며<br />
+            그 흐름과 함께 성장하는 디자이너 고평은 입니다.
           </WordReveal>
         </div>
 
         {/* Info link button */}
         <div className="about-btn">
-          <ChrHover text="Info" as="a" href="#infodetail" />
+          <ChrHover text="About Me" as="a" href="#infodetail" />
         </div>
 
         {/* Version / update */}
