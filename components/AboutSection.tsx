@@ -87,7 +87,6 @@ export default function AboutSection() {
               aspectRatio: "5/6",
               borderRadius: "280px 0 0 280px",
               background: "linear-gradient(135deg, rgba(44,59,206,0.25) 0%, rgba(74,40,160,0.15) 50%, rgba(10,10,10,0.8) 100%)",
-              border: "1px solid rgba(255,255,255,0.06)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
