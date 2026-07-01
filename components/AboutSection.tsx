@@ -102,7 +102,7 @@ export default function AboutSection() {
       </div>
 
       {/* Detailed info section */}
-      <div id="infodetail" style={{ padding: "10vh 4rem 20vh", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+      <div id="infodetail" style={{ padding: "10vh 4rem 20vh" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8vw", maxWidth: "1000px" }}>
           {/* Left */}
           <div>

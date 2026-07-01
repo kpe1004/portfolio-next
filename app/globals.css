@@ -390,7 +390,7 @@ a.chr-hover { cursor: pointer; }
 .skill-tag:hover { border-color: var(--blue); color: #f0f0f0; }
 
 /* ── Contact ── */
-.contact-section { position: relative; padding: 25vh 4rem 10vh; }
+.contact-section { position: relative; padding: 25vh 4rem 10vh; border-top: 1px solid rgba(255,255,255,0.06); }
 .contact-label { font-size: 0.62rem; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(255,255,255,0.22); margin-bottom: 4rem; }
 .contact-big {
   font-family: var(--font-display); font-size: clamp(2.5rem, 7vw, 7rem);
