@@ -1,23 +1,18 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-// Behavior:
-// - Triggered ONCE when #info first appears (scrollY > 80)
-// - Blobs emerge FROM the photo area (right side, x ≈ 105-110% vw)
-// - Slow entry ~4 s (entryRef decay 0.983)
-// - Firefly movement: multiple sinusoids at golden-ratio/√2/√3 frequencies → organic, non-repeating
-// - Scrolling back to hero → blobs retreat INTO the photo area (same path, reversed)
-// - Alpha stays at 0.60 once entry complete — never disappears while in sections
+// Entry  : blob 1 & 3 from LEFT, blob 2 from RIGHT  (양쪽)
+// Exit   : all blobs converge into photo area (right side)
+// Drift  : firefly-style multi-sine at irrational ratios, clearly visible speed
 
 export default function BlobBackground() {
   const canvasRef     = useRef<HTMLCanvasElement>(null);
   const rafRef        = useRef<number>(0);
   const hasEnteredRef = useRef(false);
-  const entryRef      = useRef(0);        // 1.2 → 0  (one-time fly-in from photo area)
+  const entryRef      = useRef(0);
   const scrollYRef    = useRef(0);
   const scrollLerpRef = useRef(0);
 
-  // Trigger once when Info section is clearly visible
   useEffect(() => {
     const section = document.querySelector("#info");
     if (!section) return;
@@ -54,67 +49,67 @@ export default function BlobBackground() {
       const h = (canvas.height = canvas.offsetHeight);
       ctx.clearRect(0, 0, w, h);
 
-      // Smooth scroll
       scrollLerpRef.current += (scrollYRef.current - scrollLerpRef.current) * 0.04;
 
       if (!hasEnteredRef.current) { t++; rafRef.current = requestAnimationFrame(draw); return; }
 
-      // ── Entry decay — slow (~4 s) ─────────────────────────────
+      // Entry: slow glide in (~4 s)
       if (entryRef.current > 0.002) entryRef.current *= 0.983;
       else entryRef.current = 0;
 
-      // ── Hero fade ─────────────────────────────────────────────
-      // 0 = in hero viewport, 1 = fully in sections
+      // heroFade: 0 = in hero, 1 = in sections
       const heroFade = Math.min(1, Math.max(0,
         (scrollLerpRef.current - h * 0.60) / (h * 0.40)
       ));
 
-      // ── Alpha (never resets to 0 once entry done) ─────────────
       const entryProgress = 1 - Math.min(entryRef.current / 1.2, 1);
       const alpha = entryProgress * 0.62 * heroFade;
-
       if (alpha < 0.005) { t++; rafRef.current = requestAnimationFrame(draw); return; }
 
-      // ── Side offset: entry from photo, exit back to photo ─────
-      const entryOff = entryRef.current / 1.2;  // 1 → 0 (one-time)
-      const exitOff  = 1 - heroFade;             // 0 → 1 when returning to hero
-      const off      = Math.max(entryOff, exitOff);
+      const entryOff = entryRef.current / 1.2; // 1→0 (fly-in, one-time)
+      const exitOff  = 1 - heroFade;           // 0→1 (fly-out when returning to hero)
 
-      // ── Firefly movement ──────────────────────────────────────
-      // Multiple sinusoids at irrational ratios (φ=1.618, √2=1.414, √3=1.732)
-      // → smooth, organic, non-repeating wandering even when scroll is still
-      const ta = t * 0.0038;
+      // ── Firefly drift ─────────────────────────────────────────
+      // ta * 0.012 → ~8-10 s period: clearly visible but not jittery
+      // Irrational multipliers (φ, √2, √3) = organic non-repeating path
+      const ta = t * 0.012;
 
-      const d1x = Math.sin(ta * 1.000) * w * 0.055 + Math.sin(ta * 1.618) * w * 0.028;
-      const d1y = Math.cos(ta * 0.721) * h * 0.068 + Math.cos(ta * 1.414) * h * 0.032;
+      const d1x = Math.sin(ta * 1.000) * w * 0.06 + Math.sin(ta * 1.618) * w * 0.03;
+      const d1y = Math.cos(ta * 0.721) * h * 0.08 + Math.cos(ta * 1.414) * h * 0.04;
 
-      const d2x = Math.cos(ta * 0.850 + 1.0) * w * 0.050 + Math.cos(ta * 1.382 + 0.5) * w * 0.024;
-      const d2y = Math.sin(ta * 0.900 + 0.5) * h * 0.062 + Math.sin(ta * 1.272)         * h * 0.028;
+      const d2x = Math.cos(ta * 0.850 + 1.0) * w * 0.05 + Math.cos(ta * 1.382 + 0.5) * w * 0.025;
+      const d2y = Math.sin(ta * 0.900 + 0.5) * h * 0.07 + Math.sin(ta * 1.272)        * h * 0.035;
 
-      const d3x = Math.sin(ta * 1.150 + 2.0) * w * 0.044 + Math.sin(ta * 1.732 + 1.5) * w * 0.020;
-      const d3y = Math.cos(ta * 0.650 + 1.5) * h * 0.056 + Math.cos(ta * 1.618 + 0.8) * h * 0.025;
+      const d3x = Math.sin(ta * 1.150 + 2.0) * w * 0.055 + Math.sin(ta * 1.732 + 1.5) * w * 0.022;
+      const d3y = Math.cos(ta * 0.650 + 1.5) * h * 0.075 + Math.cos(ta * 1.618 + 0.8) * h * 0.030;
 
-      // ── Natural resting centers ────────────────────────────────
-      const n1x = w * 0.18, n1y = h * 0.42;
-      const n2x = w * 0.78, n2y = h * 0.52;
-      const n3x = w * 0.26, n3y = h * 0.65;
+      // Natural resting centers
+      const n1x = w * 0.18, n1y = h * 0.40;
+      const n2x = w * 0.78, n2y = h * 0.50;
+      const n3x = w * 0.24, n3y = h * 0.65;
 
-      // ── Photo area: where blobs come from / return to ─────────
-      // Right side, slightly off-screen → visually feels like photo emitting light
+      // Photo area (exit target — right side, slightly off-screen)
       const p1x = w * 1.06, p1y = h * 0.36;
       const p2x = w * 1.10, p2y = h * 0.46;
       const p3x = w * 1.03, p3y = h * 0.58;
 
-      // ── Final positions ───────────────────────────────────────
-      // off=0: natural + drift   off=1: converged at photo area
-      const b1x = n1x + d1x + (p1x - n1x) * off;
-      const b1y = n1y + d1y + (p1y - n1y) * off;
-      const b2x = n2x + d2x + (p2x - n2x) * off;
-      const b2y = n2y + d2y + (p2y - n2y) * off;
-      const b3x = n3x + d3x + (p3x - n3x) * off;
-      const b3y = n3y + d3y + (p3y - n3y) * off;
+      // Base = natural + firefly drift
+      const bx1 = n1x + d1x, by1 = n1y + d1y;
+      const bx2 = n2x + d2x, by2 = n2y + d2y;
+      const bx3 = n3x + d3x, by3 = n3y + d3y;
 
-      // ── Draw ─────────────────────────────────────────────────
+      // Entry: blob1 & blob3 from LEFT, blob2 from RIGHT
+      // Exit : all go into photo area (right)
+      const b1x = bx1 - w * entryOff * 0.95  + (p1x - bx1) * exitOff;
+      const b1y = by1                          + (p1y - by1) * exitOff;
+
+      const b2x = bx2 + w * entryOff * 0.95  + (p2x - bx2) * exitOff;
+      const b2y = by2                          + (p2y - by2) * exitOff;
+
+      const b3x = bx3 - w * entryOff * 0.72  + (p3x - bx3) * exitOff;
+      const b3y = by3                          + (p3y - by3) * exitOff;
+
+      // ── Draw ──────────────────────────────────────────────────
       const g1 = ctx.createRadialGradient(b1x, b1y, 0, b1x, b1y, w * 0.50);
       g1.addColorStop(0.00, `rgba(30, 86, 255, ${(alpha * 0.88).toFixed(3)})`);
       g1.addColorStop(0.28, `rgba(44, 59, 206, ${(alpha * 0.56).toFixed(3)})`);
