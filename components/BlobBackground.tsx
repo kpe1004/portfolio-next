@@ -53,7 +53,7 @@ export default function BlobBackground() {
       const h = (canvas.height = canvas.offsetHeight);
       ctx.clearRect(0, 0, w, h);
 
-      scrollLerpRef.current += (scrollYRef.current - scrollLerpRef.current) * 0.04;
+      scrollLerpRef.current += (scrollYRef.current - scrollLerpRef.current) * 0.08;
 
       if (!hasEnteredRef.current) { t++; rafRef.current = requestAnimationFrame(draw); return; }
 
@@ -63,8 +63,9 @@ export default function BlobBackground() {
       if (entry3Ref.current > 0.002) entry3Ref.current *= 0.983; else entry3Ref.current = 0;
 
       // heroFade: 0 = in hero, 1 = in sections
+      // starts fading at scrollY = h (info boundary), fully gone at scrollY = 0.5h
       const heroFade = Math.min(1, Math.max(0,
-        (scrollLerpRef.current - h * 0.60) / (h * 0.40)
+        (scrollLerpRef.current - h * 0.50) / (h * 0.50)
       ));
 
       // Alpha based on first blob's progress (sets the mood, stays at max once in)
