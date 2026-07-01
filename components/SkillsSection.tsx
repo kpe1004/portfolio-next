@@ -39,7 +39,7 @@ export default function SkillsSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="skills">
+    <section ref={sectionRef} id="skills" className="skills">
       <div className="skills-inner">
         {/* Sticky left */}
         <div className="skills-left">

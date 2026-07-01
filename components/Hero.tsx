@@ -20,12 +20,10 @@ interface HeroProps {
 }
 
 export default function Hero({ visible }: HeroProps) {
-  const canvasRef     = useRef<HTMLCanvasElement>(null);
-  const rafRef        = useRef<number>(0);
-  const mouseRef      = useRef({ x: 0.5, y: 0.5 });
-  const mouseLerp     = useRef({ x: 0.5, y: 0.5 });
-  const scrollImpRef  = useRef(0);   // 스크롤 임펄스 (0→1 → 자동 감쇠)
-  const prevScrollRef = useRef(0);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef    = useRef<number>(0);
+  const mouseRef  = useRef({ x: 0.5, y: 0.5 });
+  const mouseLerp = useRef({ x: 0.5, y: 0.5 });
   const [mouse, setMouse] = useState({ x: 0.5, y: 0.5 });
 
   // Canvas: atmospheric gradient + film grain
@@ -79,17 +77,13 @@ export default function Hero({ visible }: HeroProps) {
       const mx = mouseLerp.current.x - 0.5;
       const my = mouseLerp.current.y - 0.5;
 
-      // 스크롤 임펄스 감쇠
-      scrollImpRef.current *= 0.88;
-      const si = scrollImpRef.current;
-
       // Time angles
       const a1 = t * 0.0022;
       const a2 = t * 0.0017;
       const a3 = t * 0.0030;
 
-      // ── Blob 1: 왼쪽에서 진입 ──────────────────────────────
-      const b1x = w * (0.40 + 0.28 * Math.sin(a1) + mx * 0.22) - w * si * 0.32;
+      // ── Blob 1 ───────────────────────────────────────────────
+      const b1x = w * (0.40 + 0.28 * Math.sin(a1) + mx * 0.22);
       const b1y = h * (0.22 + 0.16 * Math.cos(a1 * 1.4) + my * 0.18);
       const g1  = ctx.createRadialGradient(b1x, b1y, 0, b1x, b1y, w * 0.62);
       g1.addColorStop(0.00, "rgba( 30,  86, 255, 0.92)");
@@ -100,8 +94,8 @@ export default function Hero({ visible }: HeroProps) {
       ctx.fillStyle = g1;
       ctx.fillRect(0, 0, w, h);
 
-      // ── Blob 2: 오른쪽에서 진입 ────────────────────────────
-      const b2x = w * (0.65 + 0.24 * Math.cos(a2) - mx * 0.14) + w * si * 0.28;
+      // ── Blob 2 ───────────────────────────────────────────────
+      const b2x = w * (0.65 + 0.24 * Math.cos(a2) - mx * 0.14);
       const b2y = h * (0.28 + 0.18 * Math.sin(a2 * 1.2) + my * 0.12);
       const g2  = ctx.createRadialGradient(b2x, b2y, 0, b2x, b2y, w * 0.50);
       g2.addColorStop(0.00, "rgba( 74, 108, 247, 0.88)");
@@ -111,9 +105,9 @@ export default function Hero({ visible }: HeroProps) {
       ctx.fillStyle = g2;
       ctx.fillRect(0, 0, w, h);
 
-      // ── Blob 3: violet — 왼쪽에서 진입 ────────────────────
+      // ── Blob 3: violet ───────────────────────────────────────
       const b3r = w * (0.36 + 0.08 * Math.sin(a3 * 0.8));
-      const b3x = w * (0.50 + 0.22 * Math.cos(a3 + 1.0) + mx * 0.30) - w * si * 0.40;
+      const b3x = w * (0.50 + 0.22 * Math.cos(a3 + 1.0) + mx * 0.30);
       const b3y = h * (0.18 + 0.14 * Math.sin(a3 * 1.1) + my * 0.26);
       const g3  = ctx.createRadialGradient(b3x, b3y, 0, b3x, b3y, b3r);
       g3.addColorStop(0.00, "rgba(100,  50, 255, 0.72)");
@@ -123,9 +117,9 @@ export default function Hero({ visible }: HeroProps) {
       ctx.fillStyle = g3;
       ctx.fillRect(0, 0, w, h);
 
-      // ── Blob 4: 오른쪽에서 진입 ────────────────────────────
+      // ── Blob 4 ───────────────────────────────────────────────
       const a4   = t * 0.0052;
-      const b4x  = w * (0.45 + 0.16 * Math.sin(a4 + 0.5) + mx * 0.18) + w * si * 0.22;
+      const b4x  = w * (0.45 + 0.16 * Math.sin(a4 + 0.5) + mx * 0.18);
       const b4y  = h * (0.30 + 0.12 * Math.cos(a4 * 1.7) + my * 0.16);
       const g4   = ctx.createRadialGradient(b4x, b4y, 0, b4x, b4y, w * 0.26);
       g4.addColorStop(0.00, "rgba(140, 180, 255, 0.60)");
@@ -166,20 +160,6 @@ export default function Hero({ visible }: HeroProps) {
     };
     window.addEventListener("mousemove", onMove, { passive: true });
     return () => window.removeEventListener("mousemove", onMove);
-  }, []);
-
-  // 스크롤 임펄스 — 히어로가 보이는 구간(0~120vh)에서만 누적
-  useEffect(() => {
-    const onScroll = () => {
-      const curr = window.scrollY;
-      if (curr < window.innerHeight * 1.2) {
-        const delta = Math.abs(curr - prevScrollRef.current);
-        scrollImpRef.current = Math.min(scrollImpRef.current + delta * 0.06, 1.0);
-      }
-      prevScrollRef.current = curr;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const taglineStyle: React.CSSProperties = {
