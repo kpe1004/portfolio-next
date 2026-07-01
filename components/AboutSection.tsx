@@ -35,10 +35,8 @@ export default function AboutSection() {
         {/* Main large text */}
         <div className="about-text">
           <WordReveal visible={visible} delay={0}>
-            디자이너로서{" "}
-            <span className="other-accent">브랜딩</span>과{" "}
-            <span className="other-accent">영상</span>,{" "}
-            디자인을 통해 특별한 경험을 만듭니다.
+            <span className="other-accent">감각적인 비주얼</span>로,<br />
+            새로운 브랜드 경험을 전합니다.
           </WordReveal>
         </div>
 
