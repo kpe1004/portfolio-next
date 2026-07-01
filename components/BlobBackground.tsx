@@ -91,26 +91,27 @@ export default function BlobBackground() {
       // Drives blobs from off-screen → natural position (one-time)
       const entryOff = entryRef.current / 1.2; // 1→0
 
-      // ── Autonomous slow drift ─────────────────────────────────
-      // Blobs float gently even when not scrolling
-      const ta = t * 0.0008;
+      // ── Autonomous drift (always moving) ─────────────────────
+      // ta = 0.004 → one full cycle ≈ 26 s at 60 fps (gentle but clearly visible)
+      const ta = t * 0.0040;
 
-      // ── Scroll-driven motion ──────────────────────────────────
-      // Phase increases with scroll → blobs orbit/drift following you
+      // ── Scroll-driven extra motion ────────────────────────────
       const sp = scrollLerpRef.current * 0.00062;
 
       // ── Blob positions ────────────────────────────────────────
+      // Each blob has its own phase offset so they drift independently
+
       // Blob 1 — left, blue
-      const b1x = w * 0.20 + Math.sin(ta) * w * 0.04  - w * entryOff * 1.0;
-      const b1y = h * 0.42 + Math.cos(ta * 0.7) * h * 0.06 + Math.sin(sp) * h * 0.18;
+      const b1x = w * 0.20 + Math.sin(ta * 1.00)        * w * 0.10 - w * entryOff;
+      const b1y = h * 0.42 + Math.cos(ta * 0.70)        * h * 0.12 + Math.sin(sp) * h * 0.10;
 
-      // Blob 2 — right, indigo
-      const b2x = w * 0.80 + Math.cos(ta * 0.8) * w * 0.04 + w * entryOff * 1.0;
-      const b2y = h * 0.55 + Math.sin(ta * 0.9) * h * 0.05 + Math.cos(sp * 0.75) * h * 0.14;
+      // Blob 2 — right, indigo  (different phase)
+      const b2x = w * 0.80 + Math.cos(ta * 0.85 + 1.0)  * w * 0.09 + w * entryOff;
+      const b2y = h * 0.55 + Math.sin(ta * 0.90 + 0.5)  * h * 0.11 + Math.cos(sp * 0.75) * h * 0.08;
 
-      // Blob 3 — lower-left, violet
-      const b3x = w * 0.28 + Math.sin(ta * 1.1) * w * 0.03 - w * entryOff * 0.68;
-      const b3y = h * 0.65 + Math.cos(ta * 0.6) * h * 0.04 + Math.sin(sp * 0.9 + 1) * h * 0.12;
+      // Blob 3 — lower-left, violet  (yet another phase)
+      const b3x = w * 0.28 + Math.sin(ta * 1.15 + 2.0)  * w * 0.08 - w * entryOff * 0.68;
+      const b3y = h * 0.65 + Math.cos(ta * 0.65 + 1.5)  * h * 0.09 + Math.sin(sp * 0.9 + 1) * h * 0.07;
 
       // ── Draw ──────────────────────────────────────────────────
       const g1 = ctx.createRadialGradient(b1x, b1y, 0, b1x, b1y, w * 0.50);
