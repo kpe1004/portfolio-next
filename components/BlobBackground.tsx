@@ -68,16 +68,15 @@ export default function BlobBackground() {
       if (entryRef.current > 0.002) entryRef.current *= 0.972;
       else entryRef.current = 0;
 
-      // ── Hero-proximity fade ───────────────────────────────────
-      // As user scrolls back into hero, blobs gently fade out
-      // heroFade: 0 = fully in hero, 1 = past hero (full visibility)
+      // ── Hero-proximity ────────────────────────────────────────
+      // heroFade: 0 = in hero, 1 = past hero (fully visible)
+      // Fade starts at 60 % of viewport height, complete at 100 %
       const heroFade = Math.min(
         1,
-        Math.max(0, (scrollLerpRef.current - h * 0.25) / (h * 0.35))
+        Math.max(0, (scrollLerpRef.current - h * 0.60) / (h * 0.40))
       );
 
       // ── Alpha ─────────────────────────────────────────────────
-      // entryProgress: 0 (just started) → 1 (fully in, STAYS at 1)
       const entryProgress = 1 - Math.min(entryRef.current / 1.2, 1);
       const alpha = entryProgress * 0.60 * heroFade;
 
@@ -87,9 +86,13 @@ export default function BlobBackground() {
         return;
       }
 
-      // ── Entry position offset ─────────────────────────────────
-      // Drives blobs from off-screen → natural position (one-time)
-      const entryOff = entryRef.current / 1.2; // 1→0
+      // ── Position offsets ──────────────────────────────────────
+      // entryOff: 1→0 fly-in (one-time, when first entering)
+      // exitOff : 0→1 fly-out (when scrolling back into hero)
+      // Combined they push blobs off-screen to left / right
+      const entryOff = entryRef.current / 1.2;
+      const exitOff  = 1 - heroFade;            // 0 when in sections, 1 when in hero
+      const sideOff  = entryOff + exitOff;      // total push away from center
 
       // ── Autonomous drift (always moving) ─────────────────────
       // ta = 0.004 → one full cycle ≈ 26 s at 60 fps (gentle but clearly visible)
@@ -101,17 +104,17 @@ export default function BlobBackground() {
       // ── Blob positions ────────────────────────────────────────
       // Each blob has its own phase offset so they drift independently
 
-      // Blob 1 — left, blue
-      const b1x = w * 0.20 + Math.sin(ta * 1.00)        * w * 0.10 - w * entryOff;
-      const b1y = h * 0.42 + Math.cos(ta * 0.70)        * h * 0.12 + Math.sin(sp) * h * 0.10;
+      // Blob 1 — left, blue  (pushed left by sideOff)
+      const b1x = w * 0.20 + Math.sin(ta * 1.00)       * w * 0.10 - w * sideOff * 0.95;
+      const b1y = h * 0.42 + Math.cos(ta * 0.70)       * h * 0.12 + Math.sin(sp) * h * 0.10;
 
-      // Blob 2 — right, indigo  (different phase)
-      const b2x = w * 0.80 + Math.cos(ta * 0.85 + 1.0)  * w * 0.09 + w * entryOff;
-      const b2y = h * 0.55 + Math.sin(ta * 0.90 + 0.5)  * h * 0.11 + Math.cos(sp * 0.75) * h * 0.08;
+      // Blob 2 — right, indigo  (pushed right by sideOff)
+      const b2x = w * 0.80 + Math.cos(ta * 0.85 + 1.0) * w * 0.09 + w * sideOff * 0.95;
+      const b2y = h * 0.55 + Math.sin(ta * 0.90 + 0.5) * h * 0.11 + Math.cos(sp * 0.75) * h * 0.08;
 
-      // Blob 3 — lower-left, violet  (yet another phase)
-      const b3x = w * 0.28 + Math.sin(ta * 1.15 + 2.0)  * w * 0.08 - w * entryOff * 0.68;
-      const b3y = h * 0.65 + Math.cos(ta * 0.65 + 1.5)  * h * 0.09 + Math.sin(sp * 0.9 + 1) * h * 0.07;
+      // Blob 3 — lower-left, violet  (pushed left, slightly less)
+      const b3x = w * 0.28 + Math.sin(ta * 1.15 + 2.0) * w * 0.08 - w * sideOff * 0.68;
+      const b3y = h * 0.65 + Math.cos(ta * 0.65 + 1.5) * h * 0.09 + Math.sin(sp * 0.9 + 1) * h * 0.07;
 
       // ── Draw ──────────────────────────────────────────────────
       const g1 = ctx.createRadialGradient(b1x, b1y, 0, b1x, b1y, w * 0.50);
