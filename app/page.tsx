@@ -8,7 +8,6 @@ import SkillsSection      from "@/components/SkillsSection";
 import InfoDetailSection  from "@/components/InfoDetailSection";
 import ContactSection     from "@/components/ContactSection";
 import CustomCursor       from "@/components/CustomCursor";
-import BlobBackground     from "@/components/BlobBackground";
 import TopButton          from "@/components/TopButton";
 
 export default function Home() {
@@ -22,8 +21,6 @@ export default function Home() {
       <Preloader onComplete={handleComplete} />
 
       {/* Fixed blob canvas — fires on each section entry, blends as light over all sections */}
-      <BlobBackground />
-
       {/* Scroll-to-top button — appears after 400px scroll */}
       <TopButton />
 
